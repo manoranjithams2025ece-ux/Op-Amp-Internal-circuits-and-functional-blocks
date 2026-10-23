@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operational Amplifier — Internal Circuit & Functional Blocks</title>
+<style>
+:root{--bg:#081321;--panel:#101f32;--panel2:#14283e;--ink:#eef6ff;--muted:#a9bdd2;--cyan:#55d9e8;--blue:#7aa7ff;--gold:#ffd166;--green:#7ee0b5;--line:#2b4561}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(135deg,#07111e,#0b1b2d 55%,#101b31);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+header{padding:54px 7vw 42px;background:radial-gradient(ellipse at 80% 5%,#164b69 0,transparent 45%),linear-gradient(120deg,#0d2137,#102d48);border-bottom:1px solid var(--line)}
+.kicker{color:var(--cyan);font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:.78rem}
+h1{font-size:clamp(2rem,5vw,3.7rem);line-height:1.12;max-width:900px;margin:12px 0}header p{max-width:780px;color:#c4d6e8;font-size:1.1rem}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}nav a{color:var(--ink);text-decoration:none;border:1px solid #385570;background:#112840;padding:8px 13px;border-radius:999px;font-size:.9rem}nav a:hover{border-color:var(--cyan);color:var(--cyan)}
+main{max-width:1180px;margin:auto;padding:24px}
+section{background:rgba(16,31,50,.92);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,3vw,32px);margin:22px 0;box-shadow:0 14px 36px #0002}
+h2{font-size:1.65rem;margin:0 0 12px;color:#fff}h3{margin:18px 0 7px;color:var(--cyan)}p{color:#d4e1ef} .muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--panel2);border:1px solid #294660;border-radius:14px;padding:17px}.card strong{color:var(--gold)}.tag{display:inline-block;background:#153b4c;color:#9ff4fa;border:1px solid #286071;padding:3px 9px;border-radius:999px;font-size:.8rem}
+.diagram{width:100%;height:auto;background:#f7fbff;border-radius:13px;display:block;margin:16px 0;border:1px solid #c6d7e8}
+table{width:100%;border-collapse:collapse;margin:12px 0;color:#dce9f6}th,td{padding:10px 12px;border:1px solid #2b4561;text-align:left}th{background:#17334c;color:#8cecf2}tr:nth-child(even) td{background:#12263a}
+.eq{font-size:1.2rem;text-align:center;background:#081827;border:1px dashed #3b6684;border-radius:12px;padding:15px;color:#a8f0f4;margin:12px 0;overflow-wrap:anywhere}
+.note{border-left:4px solid var(--gold);padding:10px 14px;background:#282a2b;border-radius:0 10px 10px 0;color:#f6e7bc}.good{border-left-color:var(--green);color:#c8f9e4}
+button{cursor:pointer;background:var(--cyan);color:#062033;border:0;border-radius:10px;padding:10px 15px;font-weight:800;margin:5px 5px 5px 0}button:hover{filter:brightness(1.08)}input{accent-color:var(--cyan)}label{color:#d4e1ef}
+canvas{width:100%;height:270px;background:#07111e;border:1px solid #2b4561;border-radius:12px;display:block}
+.small{font-size:.9rem}.footer{text-align:center;color:var(--muted);padding:20px}
+ol li,ul li{padding:3px 0;color:#d4e1ef}
+@media(max-width:600px){main{padding:12px}header{padding:36px 20px}section{padding:18px}table{font-size:.9rem}}
+@media print{body{background:#fff;color:#111}header,section{background:#fff;color:#111;box-shadow:none;border:1px solid #aaa}p,li,td,.muted{color:#222}nav,button{display:none}.diagram{max-height:600px}}
+</style>
+</head>
+<body>
+<header>
+<div class="kicker">ECE • Analog Electronics • Multisim learning guide</div>
+<h1>Operational Amplifier:<br>Internal Circuit & Functional Blocks</h1>
+<p>A student-friendly guide to the internal stages of an op-amp, how the signal travels through them, and how to test a basic amplifier in Multisim.</p>
+<nav>
+<a href="#intro">Introduction</a><a href="#blocks">Functional blocks</a><a href="#circuit">Multisim circuit</a><a href="#wave">Waveforms</a><a href="#math">Equations</a><a href="#problems">Solved problems</a>
+</nav>
+</header>
+<main>
+<section id="intro">
+<h2>1. Introduction and learning objectives</h2>
+<p>An <b>operational amplifier (op-amp)</b> is a high-gain differential amplifier. It amplifies the voltage difference between its non-inverting (+) and inverting (−) inputs. With suitable feedback components, it can perform amplification, addition, subtraction, filtering and many other analog functions.</p>
+<div class="grid">
+<div class="card"><strong>After this lesson, you can…</strong><ul><li>Identify the main internal functional blocks.</li><li>Explain how a small differential input becomes an output signal.</li><li>Build a non-inverting amplifier test circuit in Multisim.</li><li>Calculate closed-loop gain and expected output voltage.</li></ul></div>
+<div class="card"><strong>Key terms</strong><p class="small">Differential input • High gain • Bias current • Level shifter • Push-pull output • Negative feedback • Bandwidth</p><span class="tag">Analog electronics</span></div>
+<div class="card"><strong>Important distinction</strong><p class="small">The internal block diagram below is a simplified functional representation. The exact transistor-level circuit depends on the selected op-amp IC (for example, 741 or LM358).</p></div>
+</div>
+</section>
+
+<section id="blocks">
+<h2>2. Internal circuit and functional blocks</h2>
+<p>The signal generally passes from the input differential stage through voltage-gain and level-shifting stages to the output stage. A bias network provides suitable operating currents to the internal transistors.</p>
+<svg class="diagram" viewBox="0 0 1000 430" role="img" aria-label="Simplified operational amplifier internal functional block diagram">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#234f70"/></marker></defs>
+<rect x="24" y="25" width="952" height="380" rx="18" fill="#f7fbff" stroke="#c7d9e8"/>
+<g font-family="Arial,sans-serif" fill="#18354b" text-anchor="middle">
+<text x="500" y="58" font-size="22" font-weight="bold">Simplified internal functional blocks (not a transistor-level schematic)</text>
+<rect x="55" y="135" width="185" height="112" rx="12" fill="#d8f3f5" stroke="#2c8791" stroke-width="2"/>
+<text x="147" y="168" font-size="18" font-weight="bold">Differential</text><text x="147" y="192" font-size="18" font-weight="bold">input stage</text><text x="147" y="220" font-size="14">Compares V+ and V−</text>
+<rect x="300" y="135" width="185" height="112" rx="12" fill="#e2eaff" stroke="#5277b9" stroke-width="2"/>
+<text x="392" y="168" font-size="18" font-weight="bold">Voltage-gain</text><text x="392" y="192" font-size="18" font-weight="bold">stage</text><text x="392" y="220" font-size="14">Provides high gain</text>
+<rect x="545" y="135" width="175" height="112" rx="12" fill="#fff0cc" stroke="#b88920" stroke-width="2"/>
+<text x="632" y="168" font-size="18" font-weight="bold">Level shifter</text><text x="632" y="194" font-size="14">Sets DC level</text><text x="632" y="216" font-size="14">for output stage</text>
+<rect x="780" y="135" width="160" height="112" rx="12" fill="#d9f6e8" stroke="#378866" stroke-width="2"/>
+<text x="860" y="168" font-size="18" font-weight="bold">Output stage</text><text x="860" y="194" font-size="14">Low output</text><text x="860" y="216" font-size="14">resistance</text>
+<path d="M240 191 H292" stroke="#234f70" stroke-width="3" marker-end="url(#arrow)"/><path d="M485 191 H537" stroke="#234f70" stroke-width="3" marker-end="url(#arrow)"/><path d="M720 191 H772" stroke="#234f70" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="27" y="119" font-size="16" text-anchor="start">V+ / V−</text><path d="M28 191 H49" stroke="#234f70" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="948" y="119" font-size="16" text-anchor="end">Vout</text><path d="M940 191 H968" stroke="#234f70" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="260" y="290" width="480" height="74" rx="12" fill="#ece4ff" stroke="#8567b5" stroke-width="2"/>
+<text x="500" y="319" font-size="18" font-weight="bold">Biasing / current-source network</text><text x="500" y="344" font-size="15">Establishes stable operating currents for internal stages</text>
+<path d="M500 290 V265 H147 V254" stroke="#8567b5" stroke-width="2.5" stroke-dasharray="6 5" fill="none" marker-end="url(#arrow)"/>
+<path d="M500 265 H392 V254" stroke="#8567b5" stroke-width="2.5" stroke-dasharray="6 5" fill="none" marker-end="url(#arrow)"/>
+<path d="M500 265 H632 V254" stroke="#8567b5" stroke-width="2.5" stroke-dasharray="6 5" fill="none" marker-end="url(#arrow)"/>
+<path d="M500 265 H860 V254" stroke="#8567b5" stroke-width="2.5" stroke-dasharray="6 5" fill="none" marker-end="url(#arrow)"/>
+</g></svg>
+<div class="grid">
+<div class="card"><h3>1. Differential input stage</h3><p>Accepts the two input voltages and responds mainly to their difference. It usually provides high input resistance and helps reject signals common to both inputs.</p></div>
+<div class="card"><h3>2. Voltage-gain stage</h3><p>Provides most of the op-amp's open-loop voltage gain. Internal active loads and compensation may be included.</p></div>
+<div class="card"><h3>3. Level-shifting stage</h3><p>Moves the DC voltage level to a suitable value so the output can be correctly centred for positive and negative signal swings.</p></div>
+<div class="card"><h3>4. Output stage</h3><p>Supplies load current with relatively low output resistance. Many op-amps use a class-AB or push-pull arrangement, subject to the IC design.</p></div>
+<div class="card"><h3>5. Bias network</h3><p>Creates reference currents that set transistor operating points. A real IC may also include frequency compensation and protection circuits.</p></div>
+</div>
+</section>
+
+<section id="circuit">
+<h2>3. Multisim circuit: non-inverting amplifier</h2>
+<p>This example tests an op-amp using negative feedback. In Multisim, place an op-amp model, two resistors, an AC sine source, DC supply rails, ground and an oscilloscope. Component names and power-pin visibility depend on the selected model.</p>
+<svg class="diagram" viewBox="0 0 1000 500" role="img" aria-label="Illustrative non-inverting op-amp circuit for Multisim">
+<defs><marker id="arr2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#174b6a"/></marker></defs>
+<rect x="10" y="10" width="980" height="480" rx="16" fill="#fbfdff" stroke="#c6d7e8"/>
+<g stroke="#174b6a" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round">
+<!-- input path -->
+<circle cx="100" cy="190" r="32"/><path d="M100 158 V130 M100 222 V250 M100 250 H150"/><path d="M100 180 Q110 165 120 180 T140 180" stroke-width="2" transform="translate(-30,0) scale(.9,1)"/>
+<path d="M150 250 V190 H270"/>
+<!-- triangle -->
+<path d="M270 125 L270 300 L455 212 Z" fill="#e7f0ff" stroke-width="3"/>
+<path d="M285 174 H310 M285 174 V180 M285 254 H310" stroke-width="0"/>
+<!-- pins -->
+<path d="M245 175 H270 M245 255 H270 M455 212 H540" />
+<!-- feedback -->
+<path d="M520 212 V365 H420"/><path d="M420 365 H380"/><path d="M380 365 V305"/><path d="M380 305 H270 V255"/>
+<!-- Rf resistor zigzag from output to feedback node -->
+<path d="M520 212 H580 V290 H650"/><path d="M650 290 l10 -10 l10 20 l10 -20 l10 20 l10 -20 l10 10 H735"/>
+<!-- Rg resistor -->
+<path d="M380 365 V395 l-10 8 l20 10 l-20 10 l20 10 l-10 8 V455 H310 V455"/>
+<path d="M310 455 V470"/>
+<!-- ground -->
+<path d="M290 470 H330 M296 477 H324 M303 484 H317"/>
+<!-- labels power -->
+<path d="M350 125 V85 M335 85 H365 M350 300 V330 M335 330 H365"/>
+<!-- output to label -->
+<path d="M735 290 H820"/>
+</g>
+<g font-family="Arial,sans-serif" fill="#18354b">
+<text x="40" y="115" font-size="17" font-weight="bold">Vin</text><text x="48" y="265" font-size="14">Sine source</text>
+<text x="286" y="169" font-size="22" font-weight="bold">−</text><text x="286" y="260" font-size="22" font-weight="bold">+</text>
+<text x="312" y="210" font-size="16" font-weight="bold">OP-AMP</text><text x="324" y="232" font-size="13">e.g. ideal model</text>
+<text x="322" y="75" font-size="16">+V supply</text><text x="322" y="350" font-size="16">−V supply</text>
+<text x="655" y="265" font-size="17" font-weight="bold">Rf = 10 kΩ</text>
+<text x="320" y="430" font-size="17" font-weight="bold">Rg = 10 kΩ</text>
+<text x="820" y="280" font-size="18" font-weight="bold">Vout</text><text x="785" y="310" font-size="14">Expected: 2 × Vin</text>
+<text x="45" y="40" font-size="19" font-weight="bold">Illustrative connection guide — recreate the circuit in Multisim</text>
+<text x="45" y="65" font-size="14" fill="#526d83">Not a captured Multisim screenshot. Follow the node connections and verify pins for your chosen model.</text>
+<text x="50" y="325" font-size="14">Source example:</text><text x="50" y="346" font-size="14">0.5 V peak, 1 kHz</text>
+<text x="540" y="400" font-size="14">Negative feedback from output</text><text x="540" y="420" font-size="14">to the inverting input node</text>
+</g></svg>
+<div class="note good"><b>Design tip:</b> Check the selected op-amp model's pin configuration and supply-voltage limits before running the simulation. Make sure all required power and ground connections are present.</div>
+<h3>Suggested Multisim setup</h3>
+<ol>
+<li>Start a new design and place an op-amp model (for example, a 741 model) or a suitable ideal op-amp.</li>
+<li>Connect the non-inverting (+) input to a sine source: 1 kHz, 0.5 V peak, 0 V offset.</li>
+<li>Connect Rg = 10 kΩ from the inverting (−) input node to ground.</li>
+<li>Connect Rf = 10 kΩ from the output back to the inverting (−) input node.</li>
+<li>Connect the supply rails according to the selected op-amp's pinout and model requirements. Add ground.</li>
+<li>Attach an oscilloscope: Channel A to Vin, Channel B to Vout, and both reference grounds to circuit ground.</li>
+<li>Run transient simulation and compare input/output amplitude and phase.</li>
+</ol>
+<table><tr><th>Component / setting</th><th>Example value</th><th>Purpose</th></tr>
+<tr><td>Op-amp</td><td>741 model or ideal op-amp</td><td>Amplifying element</td></tr><tr><td>Rf</td><td>10 kΩ</td><td>Feedback resistor</td></tr><tr><td>Rg</td><td>10 kΩ</td><td>Gain-setting resistor to ground</td></tr><tr><td>Input source</td><td>1 kHz, 0.5 V peak, 0 V offset</td><td>Test signal</td></tr><tr><td>Supply</td><td>Example: ±12 V, if model supports it</td><td>Provides operating voltage</td></tr></table>
+</section>
+
+<section id="wave">
+<h2>4. Expected waveform and simulation output</h2>
+<p>For an ideal non-inverting amplifier with Rf = Rg = 10 kΩ, the closed-loop gain is 2. A 0.5 V peak input therefore gives an expected 1.0 V peak output. Both signals are in phase.</p>
+<div class="grid"><div class="card"><strong>Input</strong><p>0.5 V peak<br>1.0 V peak-to-peak<br>1 kHz sine wave</p></div><div class="card"><strong>Expected output</strong><p>1.0 V peak<br>2.0 V peak-to-peak<br>In phase with input</p></div><div class="card"><strong>Output note</strong><p>Real results can differ slightly because of model properties, slew rate, bandwidth, loading and supply limits.</p></div></div>
+<canvas id="waveCanvas" width="1000" height="310" aria-label="Illustrative input and output sine wave graph"></canvas>
+<p class="small muted">Expected waveform for the ideal non-inverting amplifier, calculated using the selected gain. Compare it with the waveform obtained when you run the circuit in Multisim.</p>
+<div><label for="gain">Illustrative closed-loop gain: <b id="gainVal">2.0</b></label><br><input id="gain" type="range" min="1" max="5" value="2" step="0.5" style="width:min(500px,100%)"><button onclick="drawWave()">Update waveform</button><button onclick="window.print()">Print / Save as PDF</button></div>
+</section>
+
+<section id="math">
+<h2>5. Important equations</h2>
+<h3>Differential input</h3><div class="eq">V<sub>d</sub> = V<sub>+</sub> − V<sub>−</sub></div>
+<p>The op-amp's open-loop output is approximately Vout = A<sub>OL</sub>(V+ − V−), where A<sub>OL</sub> is open-loop voltage gain. The output is limited by the supply rails in a real device.</p>
+<h3>Non-inverting amplifier gain</h3><div class="eq">A<sub>v</sub> = Vout / Vin = 1 + (Rf / Rg)</div>
+<p>For Rf = 10 kΩ and Rg = 10 kΩ:</p><div class="eq">A<sub>v</sub> = 1 + (10 kΩ / 10 kΩ) = 2</div>
+<h3>Input and output amplitudes</h3><div class="eq">Vout(peak) = Av × Vin(peak) = 2 × 0.5 V = 1.0 V</div>
+<h3>Ideal op-amp assumptions with negative feedback</h3>
+<ul><li>Input current is approximately zero.</li><li>The voltage difference between the inputs is approximately zero while the amplifier operates linearly with negative feedback.</li><li>The output has not saturated and remains within the model's operating limits.</li></ul>
+</section>
+
+<section id="problems">
+<h2>6. Solved numerical problems</h2>
+<div class="card"><h3>Problem 1 — Calculate gain</h3><p><b>Given:</b> Rf = 20 kΩ, Rg = 10 kΩ. Find non-inverting voltage gain.</p><p><b>Formula:</b> Av = 1 + Rf/Rg</p><div class="eq">Av = 1 + 20/10 = 3</div><p><b>Answer:</b> Voltage gain = 3.</p></div>
+<div class="card"><h3>Problem 2 — Find output voltage</h3><p><b>Given:</b> Av = 4 and Vin = 0.2 V peak. Find output peak voltage.</p><div class="eq">Vout = Av × Vin = 4 × 0.2 = 0.8 V peak</div><p><b>Answer:</b> 0.8 V peak, assuming no saturation.</p></div>
+<div class="card"><h3>Problem 3 — Find feedback resistor</h3><p><b>Given:</b> Non-inverting gain Av = 6 and Rg = 2 kΩ. Find Rf.</p><p>Av = 1 + Rf/Rg, so Rf = (Av − 1)Rg.</p><div class="eq">Rf = (6 − 1) × 2 kΩ = 10 kΩ</div><p><b>Answer:</b> Rf = 10 kΩ.</p></div>
+</section>
+
+<section>
+<h2>7. Advantages, limitations and common mistakes</h2>
+<div class="grid">
+<div class="card"><h3>Advantages</h3><ul><li>High voltage gain.</li><li>High input resistance in many designs.</li><li>Useful for amplification and signal conditioning.</li><li>Feedback allows predictable closed-loop gain.</li></ul></div>
+<div class="card"><h3>Limitations</h3><ul><li>Finite bandwidth and slew rate.</li><li>Output swing and input range are limited.</li><li>Offset voltage and input bias currents are non-zero.</li><li>Load current and stability limits must be respected.</li></ul></div>
+<div class="card"><h3>Common mistakes</h3><ul><li>Forgetting circuit ground or supply connections.</li><li>Connecting feedback to the wrong input.</li><li>Confusing peak voltage with peak-to-peak voltage.</li><li>Expecting an output beyond the supply range.</li><li>Assuming every op-amp has the same pinout.</li></ul></div>
+</div>
+</section>
+<div class="footer">Prepared for ECE learning • Operational Amplifier: Internal Circuit and Functional Blocks</div>
+</main>
+<script>
+const canvas=document.getElementById('waveCanvas'),ctx=canvas.getContext('2d');
+function drawWave(){
+ const gain=Number(document.getElementById('gain').value);document.getElementById('gainVal').textContent=gain.toFixed(1);
+ const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#07111e';ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='#1e3850';ctx.lineWidth=1;
+ for(let x=50;x<w-20;x+=50){ctx.beginPath();ctx.moveTo(x,25);ctx.lineTo(x,h-35);ctx.stroke()}
+ for(let y=30;y<h-30;y+=30){ctx.beginPath();ctx.moveTo(45,y);ctx.lineTo(w-20,y);ctx.stroke()}
+ const mid=h/2,scale=45;
+ ctx.strokeStyle='#668097';ctx.beginPath();ctx.moveTo(45,mid);ctx.lineTo(w-20,mid);ctx.stroke();
+ ctx.fillStyle='#d8e7f6';ctx.font='15px Arial';ctx.fillText('Voltage (V)',12,20);ctx.fillText('Time →',w-85,h-8);
+ function plot(amp,color,label,offset){ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();for(let x=0;x<w-70;x++){let xx=x+50;let y=mid-Math.sin(x/(w-100)*Math.PI*4)*amp*scale;if(x===0)ctx.moveTo(xx,y);else ctx.lineTo(xx,y)}ctx.stroke();ctx.fillStyle=color;ctx.fillText(label,60,offset)}
+ plot(.5,'#55d9e8','Input: 0.5 V peak',30);
+ plot(.5*gain,'#ffd166','Expected output: '+(0.5*gain).toFixed(2)+' V peak',h-18);
+}
+document.getElementById('gain').addEventListener('input',drawWave);drawWave();
+</script>
+</body>
+</html>
